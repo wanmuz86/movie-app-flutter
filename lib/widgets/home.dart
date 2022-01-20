@@ -9,6 +9,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+   var searchEditingController = TextEditingController();
   List<Movie> movies = [
 
   ];
@@ -22,7 +23,11 @@ class _HomePageState extends State<HomePage> {
             children: [
               Row(
                 children: [
-                  Expanded(child: TextField(decoration: InputDecoration(
+                  Expanded(child:
+                  TextField(
+                    controller:  searchEditingController,
+                    decoration: InputDecoration(
+
                       hintText: "Enter Movie"),)),
                   TextButton(onPressed: (){
                     fetchMovie().then((value) =>
@@ -59,7 +64,7 @@ class _HomePageState extends State<HomePage> {
   }
   Future<List<Movie>> fetchMovie() async {
     final response = await http
-        .get(Uri.parse('http://www.omdbapi.com/?s=Harry&apikey=87d10179'));
+        .get(Uri.parse('http://www.omdbapi.com/?s=${searchEditingController.text}&apikey=87d10179'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
