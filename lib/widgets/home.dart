@@ -1,44 +1,16 @@
 import 'package:flutter/material.dart';
 import 'detail.dart';
+import 'package:weather_app/models/movie.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  var movies = [
-    {
-      "Title": "Harry Potter and the Deathly Hallows: Part 2",
-      "Year": "2011",
-      "imdbID": "tt1201607",
-      "Type": "movie",
-      "Poster":
-          "https://m.media-amazon.com/images/M/MV5BMGVmMWNiMDktYjQ0Mi00MWIxLTk0N2UtN2ZlYTdkN2IzNDNlXkEyXkFqcGdeQXVyODE5NzE3OTE@._V1_SX300.jpg"
-    },
-    {
-      "Title": "Harry Potter and the Sorcerer's Stone",
-      "Year": "2001",
-      "imdbID": "tt0241527",
-      "Type": "movie",
-      "Poster":
-          "https://m.media-amazon.com/images/M/MV5BNjQ3NWNlNmQtMTE5ZS00MDdmLTlkZjUtZTBlM2UxMGFiMTU3XkEyXkFqcGdeQXVyNjUwNzk3NDc@._V1_SX300.jpg"
-    },
-    {
-      "Title": "Harry Potter and the Chamber of Secrets",
-      "Year": "2002",
-      "imdbID": "tt0295297",
-      "Type": "movie",
-      "Poster":
-          "https://m.media-amazon.com/images/M/MV5BMTcxODgwMDkxNV5BMl5BanBnXkFtZTYwMDk2MDg3._V1_SX300.jpg"
-    },
-    {
-      "Title": "Harry Potter and the Prisoner of Azkaban",
-      "Year": "2004",
-      "imdbID": "tt0304141",
-      "Type": "movie",
-      "Poster":
-          "https://m.media-amazon.com/images/M/MV5BMTY4NTIwODg0N15BMl5BanBnXkFtZTcwOTc0MjEzMw@@._V1_SX300.jpg"
-    }
+  List<Movie> movies = [
+
   ];
   @override
   Widget build(BuildContext context) {
@@ -52,7 +24,15 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(child: TextField(decoration: InputDecoration(
                       hintText: "Enter Movie"),)),
-                  TextButton(onPressed: (){}, child: Text("Search"))
+                  TextButton(onPressed: (){
+                    fetchMovie().then((value) =>
+                        setState(() {
+                          movies = value;
+                        })
+                    );
+
+
+                  }, child: Text("Search"))
                 ],
               ),
               Expanded(
@@ -61,10 +41,10 @@ class _HomePageState extends State<HomePage> {
                   itemCount: movies.length,
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
-                      title: Text(movies[index]["Title"]!),
-                      subtitle: Text(movies[index]["Year"]!),
+                      title: Text(movies[index].title),
+                      subtitle: Text(movies[index].year),
                       trailing: Icon(Icons.chevron_right),
-                      leading:Image.network(movies[index]["Poster"]!),
+                      leading:Image.network(movies[index].poster),
                         onTap:(){
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context)=>DetailPage()));
@@ -76,5 +56,19 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ));
+  }
+  Future<List<Movie>> fetchMovie() async {
+    final response = await http
+        .get(Uri.parse('http://www.omdbapi.com/?s=Harry&apikey=87d10179'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return Movie.moviesFromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
 }
