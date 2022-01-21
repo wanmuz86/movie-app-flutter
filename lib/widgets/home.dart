@@ -52,7 +52,8 @@ class _HomePageState extends State<HomePage> {
                       leading:Image.network(movies[index].poster),
                         onTap:(){
                         Navigator.push(context,
-                            MaterialPageRoute(builder: (context)=>DetailPage()));
+                            MaterialPageRoute(builder: (context)=>
+                                DetailPage(imdbId: movies[index].imdbId,)));
                     }
                     );
                   },
